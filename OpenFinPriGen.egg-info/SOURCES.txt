@@ -1,0 +1,8 @@
+README.md
+setup.py
+OpenFinPriGen/__init__.py
+OpenFinPriGen/myfunctions.py
+OpenFinPriGen.egg-info/PKG-INFO
+OpenFinPriGen.egg-info/SOURCES.txt
+OpenFinPriGen.egg-info/dependency_links.txt
+OpenFinPriGen.egg-info/top_level.txt
