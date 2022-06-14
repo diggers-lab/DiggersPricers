@@ -18,13 +18,12 @@ class StructuredProducts:
 
 class VanillaProducts(StructuredProducts):
 
-    def __init__(self, s: pd.DataFrame, position: str, style: str, k: float, maturity: float, trajectories: int,
+    def __init__(self, s: pd.DataFrame, style: str, k: float, maturity: float, trajectories: int,
                  rf: float = 0, q: float = 0):
 
         """
                 This class describes the key parameters of Vanilla products as well as their payoff
                 @param s: stock price evolution described in a DataFrame
-                @param position: "sell" or "long"
                 @param style: call ("c") or put ("p").
                 @param k: Strike price of your option.
                 @param maturity: Time until the end of life of the option.
@@ -34,7 +33,6 @@ class VanillaProducts(StructuredProducts):
         """
 
         StructuredProducts.__init__(self, s)
-        self.position = position
         self.style = style
         self.k = k
         self.maturity = maturity
@@ -46,57 +44,77 @@ class VanillaProducts(StructuredProducts):
         tab = np.zeros(shape=(self.trajectories, self.maturity))
         df = pd.DataFrame(tab)
 
-        if self.position == "long" and self.style == "c":
+        if self.style == "c":
             for i in range(self.trajectories):
                 df.iat[i, self.maturity - 1] = max(self.s.iat[i, self.maturity - 1] - self.k, 0)
 
-        elif self.position == "long" and self.style == "p":
+        elif self.style == "p":
             for i in range(self.trajectories):
                 df.iat[i, self.maturity - 1] = max(self.k - self.s.iat[i, self.maturity - 1], 0)
 
-        elif self.position == "short" and self.style == "c":
-            for i in range(self.trajectories):
-                df.iat[i, self.maturity - 1] = min(self.k - self.s.iat[i, self.maturity - 1], 0)
-
-        elif self.position == "short" and self.style == "p":
-            for i in range(self.trajectories):
-                df.iat[i, self.maturity - 1] = min(self.s.iat[i, self.maturity - 1] - self.k, 0)
         else:
             raise Exception("Combination (position, style) not existing. Check your input.")
 
         return df
 
 
-class ExoticOptions(StructuredProducts):
+class ExoticOptions(VanillaProducts):
 
-    def __init__(self, s: pd.DataFrame, position: str, style: str, k: float, maturity: float, trajectories: int,
-                 barrier: float,
-                 rf: float = 0, q: float = 0):
-        StructuredProducts.__init__(self, s)
-        self.position = position
-        self.style = style
-        self.k = k
-        self.maturity = maturity
-        self.trajectories = trajectories
+    def __init__(self, s: pd.DataFrame, style: str, k: float, maturity: float, trajectories: int, exotic_style: str,
+                 barrier: float, mean_style: str = "arithmetic", rf: float = 0, q: float = 0):
+        VanillaProducts.__init__(self, s, style, k, maturity, trajectories, rf, q)
+        self.exotic_style = exotic_style
         self.barrier = barrier
-        self.rf = rf
-        self.q = q
+        self.mean_style = mean_style
 
-    def payoff(self, s):
+    def payoff_exotic(self, s):
         tab = np.zeros(shape=(self.trajectories, self.maturity))
-        df = pd.DataFrame(tab)
+        df_exotic = pd.DataFrame(tab)
 
-        if self.position == "long" and self.style == "a":
+        if self.exotic_style == "a" and self.mean_style == "arithmetic":
             for i in range(self.trajectories):
-                A_T = np.sum(self.s.iloc[i])
-                df[i, self.maturity - 1] = max(A_T - self.k, 0)
+                A_T = np.mean(self.s.iloc[i])
+                df_exotic.iat[i, self.maturity - 1] = A_T
+            VanillaProducts.payoff(self, df_exotic)
+        if self.exotic_style == "a" and self.mean_style == "geometric":
+            for i in range(self.trajectories):
+                A_T = 1
+                for j in range(self.maturity):
+                    A_T = A_T * self.s.iat[i, j]
+                df_exotic.iat[i, self.maturity - 1] = A_T ^ (1 / self.maturity)
+            VanillaProducts.payoff(self, df_exotic)
 
-        elif self.position == "short" and self.style == "a":
+        elif self.exotic_style == "do":
             for i in range(self.trajectories):
-                A_T = np.sum(self.s.iloc[i])
-                df[i, self.maturity - 1] = min(self.k - A_T, 0)
+                if np.min(self.s.iloc[i]) > self.barrier:
+                    df_exotic.iat[i, self.maturity - 1] = self.s.iat[i, self.maturity - 1]
+                else:
+                    df_exotic.iat[i, self.maturity - 1] = 0
+            VanillaProducts.payoff(self, df_exotic)
+
+        elif self.exotic_style == "di":
+            for i in range(self.trajectories):
+                if np.min(self.s.iloc[i]) <= self.barrier:
+                    df_exotic.iat[i, self.maturity - 1] = self.s.iat[i, self.maturity - 1]
+                else:
+                    df_exotic.iat[i, self.maturity - 1] = 0
+            VanillaProducts.payoff(self, df_exotic)
+
+        elif self.exotic_style == "uo":
+            for i in range(self.trajectories):
+                if np.max(self.s.iloc[i]) < self.barrier:
+                    df_exotic.iat[i, self.maturity - 1] = self.s.iat[i, self.maturity - 1]
+                else:
+                    df_exotic.iat[i, self.maturity - 1] = 0
+            VanillaProducts.payoff(self, df_exotic)
+
+        elif self.exotic_style == "ui":
+            for i in range(self.trajectories):
+                if np.max(self.s.iloc[i]) >= self.barrier:
+                    df_exotic.iat[i, self.maturity - 1] = self.s.iat[i, self.maturity - 1]
+                else:
+                    df_exotic.iat[i, self.maturity - 1] = 0
+            VanillaProducts.payoff(self, df_exotic)
 
         else:
             raise Exception("Combination (position, style) not existing. Check your input.")
-
-        return df

@@ -12,7 +12,7 @@ def main():
     df_bis = pd.DataFrame(tab_bis)
     print(df_bis)
     print(df_bis.iloc[1])
-    print(np.sum(df_bis.iloc[1]))
+    print(np.max(df_bis.iloc[1]))
     #print(df)
 
     # for i in range(len(df_bis)):
