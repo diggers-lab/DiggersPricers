@@ -8,7 +8,6 @@ from scipy.stats import stats
 class ModelGenerator:
 
     def __init__(self, N: int, T: int):
-        """ @param s: underlying described in a DataFrame"""
         self.N = N
         self.T = T
 
