@@ -11,9 +11,10 @@ def main():
     tab_bis = np.random.randint(5, size=(5, 6))
     df_bis = pd.DataFrame(tab_bis)
     print(df_bis)
-    print(df_bis.iloc[1])
-    print(np.max(df_bis.iloc[1]))
-    #print(df)
+    print(len(df_bis.iloc[1]))
+    # print(df_bis.iloc[1])
+    # print(np.max(df_bis.iloc[1]))
+    # print(df)
 
     # for i in range(len(df_bis)):
     #    df.iat[i,5] = max(df_bis.iat[i,5] - 1, 0)
