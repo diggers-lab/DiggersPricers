@@ -12,5 +12,5 @@ class StructuredProducts:
         self.s = s
 
     @abstractmethod
-    def payoff(self, s):
+    def payoff(self):
         pass

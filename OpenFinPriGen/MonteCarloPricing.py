@@ -10,18 +10,17 @@ class MonteCarloPricing(Pricer):
     def __init__(self, df_payoff: pd.DataFrame, r: pd.DataFrame, s: pd.DataFrame, k: float,
                  dt: float, option_style: str = "european"):
         """
-                                This abstract class aims to provide different techniques to price financial instruments
-                                @param df_payoff: the payoff must be a DataFrame
-                                @param r: the evolution of interest rates must be described as a Dataframe
-                                @param s: evolution of the underlying in a Dataframe. Useful for american-style option
-                                @param k: strike considered for the underlying, float
-                                @param dt: time consideration must be specified: float (monthly, daily, yearly)
-                                @param option_style: "european" or "american"
+                        This abstract class aims to provide different techniques to price financial instruments
+                        @param df_payoff: the payoff must be a DataFrame
+                        @param r: the evolution of interest rates must be described as a Dataframe
+                        @param s: evolution of the underlying in a Dataframe. Useful for american-style option
+                        @param k: strike considered for the underlying, float
+                        @param dt: time consideration must be specified: float (monthly, daily, yearly)
+                        @param option_style: "european" or "american"
         """
         Pricer.__init__(self, df_payoff, r, s, k, dt, option_style)
 
-    def price(self, df_payoff: pd.DataFrame, r: pd.DataFrame, s: pd.DataFrame, k: float,
-              dt: float, option_style: str = "european"):
+    def price(self):
 
         tab_valuation = np.zeros(shape=(len(self.df_payoff), len(self.df_payoff.iloc[0])))
         df_eu_valuation = pd.DataFrame(tab_valuation)

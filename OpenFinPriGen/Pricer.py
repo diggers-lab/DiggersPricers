@@ -25,6 +25,5 @@ class Pricer:
         self.option_style = option_style
 
     @abstractmethod
-    def price(self, df_payoff: pd.DataFrame, r: pd.DataFrame, s: pd.DataFrame, k: float,
-              dt: float, option_style: str = "european"):
+    def price(self):
         pass

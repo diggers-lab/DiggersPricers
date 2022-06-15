@@ -1,8 +1,11 @@
 import numpy as np
 import pandas as pd
-from scipy.stats import stats
+import statistics
+import scipy.stats as si
+from scipy.stats import norm
 
 from OpenFinPriGen import Pricer
+
 
 class AnalyticalExpressions(Pricer):
 
@@ -23,7 +26,45 @@ class AnalyticalExpressions(Pricer):
         self.rf = rf
         self.q = q
 
-    def priceBlackScholes(self, s: pd.DataFrame, style: str, k: float, maturity: float, rf: float = 0, q: float = 0):
+    def priceBlackScholes(self, sigma: float):
+        d1 = (np.log(self.s / self.k) + (self.rf - self.q + sigma ** 2 * 0.5) * self.T) / (sigma * np.sqrt(self.T))
+        d2 = d1 - sigma * np.sqrt(self.T)
 
+        if self.style == 'c':
+            price = (self.s.iat[0, 0] * np.exp(-self.q * self.maturity) * si.norm.cdf(d1, 0.0, 1.0)
+                     - self.k * np.exp(-self.rf * self.maturity) * si.norm.cdf(d2, 0.0, 1.0))
+            return price
 
+        elif self.style == 'p':
+            price = (self.k * np.exp(-self.rf * self.maturity) * si.norm.cdf(-d2, 0.0, 1.0)
+                     - self.s.iat[0, 0] * np.exp(-self.q * self.maturity) * si.norm.cdf(-d1, 0.0, 1.0))
+            return price
+
+        else:
+            print(f"No such option type, check function parameters")
+
+    def deltaBlackScholes(self, sigma):
+        d1 = (np.log(self.s / self.k) + (self.rf - self.q + sigma ** 2 * 0.5) * self.T) / (sigma * np.sqrt(self.T))
+        d2 = d1 - sigma * np.sqrt(self.T)
+
+        if self.style == 'c':
+            delta = np.exp(-self.q * self.maturity) * norm.cdf(d1)
+            return delta
+
+        elif self.style == 'p':
+            delta = -np.exp(-self.q * self.maturity) * norm.cdf(-d1)
+            return delta
+
+        else:
+            print(f"No such option type, check function parameters")
+
+    def gammaBlackScholes(self, sigma):
+        d1 = (np.log(self.s / self.k) + (self.rf - self.q + sigma ** 2 * 0.5) * self.T) / (sigma * np.sqrt(self.T))
+        gamma = np.exp(-self.q * self.maturity) * norm.pdf(d1) / (self.s.iat[0, 0] * sigma * np.sqrt(self.maturity))
+        return gamma
+
+    def vegaBlackScholes(self, sigma):
+        d1 = (np.log(self.s / self.k) + (self.rf - self.q + sigma ** 2 * 0.5) * self.T) / (sigma * np.sqrt(self.T))
+        vega = 0.01 * np.exp(-self.q * self.maturity) * (self.s.iat[0, 0] * norm.pdf(d1) * np.sqrt(self.maturity))
+        return vega
 
