@@ -14,7 +14,7 @@ class BlackScholesGen(ModelGenerator):
         self.sigma = sigma
         self.dt = dt
 
-    def path_generate(self):
+    def PathGenerate(self):
         price_tab = np.zeros(shape=(self.N, self.T))
         for i in range(self.N):
             price_tab[i][0] = self.s0

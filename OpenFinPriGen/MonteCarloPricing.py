@@ -20,19 +20,20 @@ class MonteCarloPricing(Pricer):
         """
         Pricer.__init__(self, df_payoff, r, s, k, dt, option_style)
 
-    def price(self):
+    def Price(self):
 
         tab_valuation = np.zeros(shape=(len(self.df_payoff), len(self.df_payoff.iloc[0])))
         df_eu_valuation = pd.DataFrame(tab_valuation)
         df_us_valuation = pd.DataFrame(tab_valuation)
-        for j in range(len(df_eu_valuation.iloc[0]) - 1, 0, -1):
+        for j in range(len(df_eu_valuation.iloc[0]) - 2, -1, -1):
             for i in range(len(df_eu_valuation)):
-                df_eu_valuation.iat[i, j] = np.exp(-self.dt * self.r.iat[i, j]) *\
-                                            (self.df_payoff.iat[i, j + 1] + df_eu_valuation.iat[i, j + 1])
+                df_eu_valuation.iat[i, j] = np.exp(-self.dt * self.r.iat[i, j]) * (self.df_payoff.iat[i, j + 1]
+                                                                                   + df_eu_valuation.iat[i, j + 1])
         if self.option_style == "european":
+            print(df_eu_valuation)
             MC_price = np.mean(df_eu_valuation[0])
         elif self.option_style == "american":
-            for j in range(len(df_us_valuation.iloc[0]) - 1, 0, -1):
+            for j in range(len(df_us_valuation.iloc[0]) - 1, -1, -1):
                 for i in range(len(df_us_valuation)):
                     df_us_valuation.iat[i, j] = max(self.s.iat[i, j]-self.k, df_eu_valuation[i, j])
             MC_price = np.mean(df_us_valuation[0])

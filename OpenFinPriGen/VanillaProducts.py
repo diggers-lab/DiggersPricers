@@ -31,12 +31,8 @@ class VanillaProducts(StructuredProducts):
         self.rf = rf
         self.q = q
 
-    def payoff(self):
+    def Payoff(self):
         if self.style == "c":
-            print("Ce que je veux....")
-            print(self.df_options)
-            print("Check: underlying...")
-            print(self.s)
             for i in range(self.trajectories):
                 self.df_options.iat[i, self.maturity - 1] = max(self.s.iat[i, self.maturity - 1] - self.k, 0)
 

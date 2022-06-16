@@ -12,5 +12,5 @@ class ModelGenerator:
         self.T = T
 
     @abstractmethod
-    def path_generate(self):
+    def PathGenerate(self):
         pass

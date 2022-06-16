@@ -28,7 +28,7 @@ class AnalyticalExpressions(Pricer, ABC):
         self.rf = rf
         self.q = q
 
-    def priceBlackScholes(self, sigma: float):
+    def PriceBlackScholes(self, sigma: float):
         d1 = (np.log(self.s / self.k) + (self.rf - self.q + sigma ** 2 * 0.5) * self.T) / (sigma * np.sqrt(self.T))
         d2 = d1 - sigma * np.sqrt(self.T)
 
@@ -45,7 +45,7 @@ class AnalyticalExpressions(Pricer, ABC):
         else:
             print(f"No such option type, check function parameters")
 
-    def deltaBlackScholes(self, sigma):
+    def DeltaBlackScholes(self, sigma):
         d1 = (np.log(self.s / self.k) + (self.rf - self.q + sigma ** 2 * 0.5) * self.T) / (sigma * np.sqrt(self.T))
         d2 = d1 - sigma * np.sqrt(self.T)
 
@@ -60,12 +60,12 @@ class AnalyticalExpressions(Pricer, ABC):
         else:
             print(f"No such option type, check function parameters")
 
-    def gammaBlackScholes(self, sigma):
+    def GammaBlackScholes(self, sigma):
         d1 = (np.log(self.s / self.k) + (self.rf - self.q + sigma ** 2 * 0.5) * self.T) / (sigma * np.sqrt(self.T))
         gamma = np.exp(-self.q * self.maturity) * norm.pdf(d1) / (self.s.iat[0, 0] * sigma * np.sqrt(self.maturity))
         return gamma
 
-    def vegaBlackScholes(self, sigma):
+    def VegaBlackScholes(self, sigma):
         d1 = (np.log(self.s / self.k) + (self.rf - self.q + sigma ** 2 * 0.5) * self.T) / (sigma * np.sqrt(self.T))
         vega = 0.01 * np.exp(-self.q * self.maturity) * (self.s.iat[0, 0] * norm.pdf(d1) * np.sqrt(self.maturity))
         return vega

@@ -13,21 +13,21 @@ q = 0.003
 s0 = 45
 sigma = 0.25
 dt = 1 / 250
+tab_r = rf * np.ones(shape=(N, T))
+r = pd.DataFrame(tab_r)
 
 
 def main():
     my_GBM = BlackScholesGen(N, T, rf, q, s0, sigma, dt)
-    GBM = my_GBM.path_generate()
+    GBM = my_GBM.PathGenerate()
     print(GBM)
     df = pd.DataFrame
     my_exotic_option = ExoticOptions(GBM, df, "c", 46, T, N, "a", 0, "arithmetic", rf, q)
-    df_payoff = my_exotic_option.payoff_exotic()
+    df_payoff = my_exotic_option.PayoffExotic()
     print(df_payoff)
-    tab_r = np.ones(N, T)
-    r = pd.DataFrame(tab_r)
     my_MC_pricing = MonteCarloPricing(df_payoff, r, GBM, 46, dt, "european")
-
-
+    MC_price = my_MC_pricing.Price()
+    print(MC_price)
 
 
 if __name__ == '__main__':
