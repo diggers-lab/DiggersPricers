@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import stats
 
-from OpenFinPriGen import Pricer
+from OpenFinPriGen.Pricer import Pricer
 
 
 class MonteCarloPricing(Pricer):

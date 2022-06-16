@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from scipy.stats import stats
-from OpenFinPriGen import ModelGenerator
+from OpenFinPriGen.ModelGenerator import ModelGenerator
 
 
 class BlackScholesGen(ModelGenerator):

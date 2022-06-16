@@ -2,12 +2,12 @@ import numpy as np
 import pandas as pd
 from scipy.stats import stats
 
-from OpenFinPriGen import StructuredProducts
+from OpenFinPriGen.StructuredProducts import StructuredProducts
 
 
 class VanillaProducts(StructuredProducts):
 
-    def __init__(self, s: pd.DataFrame, df_options: pd.DataFrame, style: str, k: float, maturity: float,
+    def __init__(self, s: pd.DataFrame, df_options: pd.DataFrame, style: str, k: float, maturity: int,
                  trajectories: int, rf: float = 0, q: float = 0):
 
         """
@@ -33,6 +33,10 @@ class VanillaProducts(StructuredProducts):
 
     def payoff(self):
         if self.style == "c":
+            print("Ce que je veux....")
+            print(self.df_options)
+            print("Check: underlying...")
+            print(self.s)
             for i in range(self.trajectories):
                 self.df_options.iat[i, self.maturity - 1] = max(self.s.iat[i, self.maturity - 1] - self.k, 0)
 

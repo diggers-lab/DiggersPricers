@@ -2,12 +2,12 @@ import numpy as np
 import pandas as pd
 from scipy.stats import stats
 
-from OpenFinPriGen import VanillaProducts
+from OpenFinPriGen.VanillaProducts import VanillaProducts
 
 
 class ExoticOptions(VanillaProducts):
 
-    def __init__(self, s: pd.DataFrame, df_options: pd.DataFrame, style: str, k: float, maturity: float,
+    def __init__(self, s: pd.DataFrame, df_options: pd.DataFrame, style: str, k: float, maturity: int,
                  trajectories: int, exotic_style: str,
                  barrier: float, mean_style: str = "arithmetic", rf: float = 0, q: float = 0):
         """
@@ -28,14 +28,15 @@ class ExoticOptions(VanillaProducts):
         df_exotic = pd.DataFrame(tab)
 
         if self.exotic_style == "none":
-            VanillaProducts.df_options = df_exotic
+            self.df_options = df_exotic
             self.payoff()
+
         elif self.exotic_style == "a" and self.mean_style == "arithmetic":
             for i in range(self.trajectories):
                 A_T = np.mean(self.s.iloc[i])
                 df_exotic.iat[i, self.maturity - 1] = A_T
-            VanillaProducts.df_options = df_exotic
-            self.payoff()
+            self.df_options = df_exotic
+            return self.payoff()
 
         elif self.exotic_style == "a" and self.mean_style == "geometric":
             for i in range(self.trajectories):
@@ -43,8 +44,8 @@ class ExoticOptions(VanillaProducts):
                 for j in range(self.maturity):
                     A_T = A_T * self.s.iat[i, j]
                 df_exotic.iat[i, self.maturity - 1] = A_T ^ (1 / self.maturity)
-            VanillaProducts.df_options = df_exotic
-            self.payoff()
+            self.df_options = df_exotic
+            return self.payoff()
 
         elif self.exotic_style == "do":
             for i in range(self.trajectories):
@@ -52,8 +53,8 @@ class ExoticOptions(VanillaProducts):
                     df_exotic.iat[i, self.maturity - 1] = self.s.iat[i, self.maturity - 1]
                 else:
                     df_exotic.iat[i, self.maturity - 1] = 0
-            VanillaProducts.df_options = df_exotic
-            self.payoff()
+            self.df_options = df_exotic
+            return self.payoff()
 
         elif self.exotic_style == "di":
             for i in range(self.trajectories):
@@ -61,8 +62,8 @@ class ExoticOptions(VanillaProducts):
                     df_exotic.iat[i, self.maturity - 1] = self.s.iat[i, self.maturity - 1]
                 else:
                     df_exotic.iat[i, self.maturity - 1] = 0
-            VanillaProducts.df_options = df_exotic
-            self.payoff()
+            self.df_options = df_exotic
+            return self.payoff()
 
         elif self.exotic_style == "uo":
             for i in range(self.trajectories):
@@ -70,8 +71,8 @@ class ExoticOptions(VanillaProducts):
                     df_exotic.iat[i, self.maturity - 1] = self.s.iat[i, self.maturity - 1]
                 else:
                     df_exotic.iat[i, self.maturity - 1] = 0
-            VanillaProducts.df_options = df_exotic
-            self.payoff()
+            self.df_options = df_exotic
+            return self.payoff()
 
         elif self.exotic_style == "ui":
             for i in range(self.trajectories):
@@ -79,8 +80,8 @@ class ExoticOptions(VanillaProducts):
                     df_exotic.iat[i, self.maturity - 1] = self.s.iat[i, self.maturity - 1]
                 else:
                     df_exotic.iat[i, self.maturity - 1] = 0
-            VanillaProducts.df_options = df_exotic
-            self.payoff()
+            self.df_options = df_exotic
+            return self.payoff()
 
         else:
             raise Exception("Combination (position, style) not existing. Check your input.")

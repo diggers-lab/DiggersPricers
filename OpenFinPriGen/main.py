@@ -2,23 +2,32 @@ import matplotlib.pyplot as plt
 import yfinance as yf
 import pandas as pd
 import numpy as np
+from OpenFinPriGen.BlackScholesGen import BlackScholesGen
+from OpenFinPriGen.ExoticOptions import ExoticOptions
+from OpenFinPriGen.MonteCarloPricing import MonteCarloPricing
+
+N = 1000
+T = 12
+rf = 0.01
+q = 0.003
+s0 = 45
+sigma = 0.25
+dt = 1 / 250
 
 
 def main():
-    # print("Initialization")
-    tab = np.zeros(shape=(5, 6))
-    df = pd.DataFrame(tab)
-    tab_bis = np.random.randint(5, size=(5, 6))
-    df_bis = pd.DataFrame(tab_bis)
-    print(df_bis)
-    print(len(df_bis.iloc[1]))
-    # print(df_bis.iloc[1])
-    # print(np.max(df_bis.iloc[1]))
-    # print(df)
+    my_GBM = BlackScholesGen(N, T, rf, q, s0, sigma, dt)
+    GBM = my_GBM.path_generate()
+    print(GBM)
+    df = pd.DataFrame
+    my_exotic_option = ExoticOptions(GBM, df, "c", 46, T, N, "a", 0, "arithmetic", rf, q)
+    df_payoff = my_exotic_option.payoff_exotic()
+    print(df_payoff)
+    tab_r = np.ones(N, T)
+    r = pd.DataFrame(tab_r)
+    my_MC_pricing = MonteCarloPricing(df_payoff, r, GBM, 46, dt, "european")
 
-    # for i in range(len(df_bis)):
-    #    df.iat[i,5] = max(df_bis.iat[i,5] - 1, 0)
-    # print(df)
+
 
 
 if __name__ == '__main__':

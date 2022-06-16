@@ -1,13 +1,15 @@
+from abc import ABC
+
 import numpy as np
 import pandas as pd
 import statistics
 import scipy.stats as si
 from scipy.stats import norm
 
-from OpenFinPriGen import Pricer
+from OpenFinPriGen.Pricer import Pricer
 
 
-class AnalyticalExpressions(Pricer):
+class AnalyticalExpressions(Pricer, ABC):
 
     def __init__(self, s: pd.DataFrame, style: str, k: float, maturity: float, rf: float = 0, q: float = 0):
         """
