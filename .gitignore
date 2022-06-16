@@ -3,3 +3,5 @@ build/
 dist/
 OpenFinPriGen.egg-info/
 .pytest_cache/
+tests/
+.gitignore
