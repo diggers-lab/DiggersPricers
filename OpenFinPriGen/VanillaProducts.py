@@ -7,40 +7,33 @@ from OpenFinPriGen.StructuredProducts import StructuredProducts
 
 class VanillaProducts(StructuredProducts):
 
-    def __init__(self, s: pd.DataFrame, df_options: pd.DataFrame, style: str, k: float, maturity: int,
-                 trajectories: int, rf: float = 0, q: float = 0):
+    def __init__(self, s: pd.DataFrame, df_options: pd.DataFrame, vanilla_style: str, k: float):
 
         """
                 This class describes the key parameters of Vanilla products as well as their payoff
                 @param s: stock price evolution described in a DataFrame
                 @param df_options : Dataframe describing the payoff along each trajectory
-                @param style: call ("c") or put ("p").
                 @param k: Strike price of your option.
-                @param maturity: Time until the end of life of the option.
-                @param trajectories: Number of trajectories eq. number of rows in the dataframe
-                @param rf: Risk free rate to apply for the calculations.default=0.
-                @param q: Dividend yield (if existing). Default=0.
         """
 
         StructuredProducts.__init__(self, s)
         self.df_options = df_options
-        self.style = style
+        self.vanilla_style = vanilla_style
         self.k = k
-        self.maturity = maturity
-        self.trajectories = trajectories
-        self.rf = rf
-        self.q = q
 
     def Payoff(self):
-        if self.style == "c":
-            for i in range(self.trajectories):
-                self.df_options.iat[i, self.maturity - 1] = max(self.s.iat[i, self.maturity - 1] - self.k, 0)
+        T = len(self.s.iloc[0])
+        N = len(self.s[0])
 
-        elif self.style == "p":
-            for i in range(self.trajectories):
-                self.df_options.iat[i, self.maturity - 1] = max(self.k - self.s.iat[i, self.maturity - 1], 0)
+        if self.vanilla_style == "c":
+            for i in range(N):
+                self.df_options.iat[i, T - 1] = max(self.df_options.iat[i, T - 1] - self.k, 0)
+
+        elif self.vanilla_style == "p":
+            for i in range(N):
+                self.df_options.iat[i, T - 1] = max(self.k - self.df_options.iat[i, T - 1], 0)
 
         else:
             raise Exception("Combination (position, style) not existing. Check your input.")
 
-        return self.df_options
+        return self.df_options, self.s

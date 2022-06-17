@@ -19,8 +19,8 @@ class BlackScholesGen(ModelGenerator):
         for i in range(self.N):
             price_tab[i][0] = self.s0
         for t in range(1, self.T):
+            Z = np.random.normal(size=self.N)
             for i in range(self.N):
-                Z = np.random.normal(size=self.N)
                 price_tab[i][t] = price_tab[i][t - 1] * np.exp(
                     (self.r - self.q - 0.5 * self.sigma ** 2) * self.dt + self.sigma * np.sqrt(self.dt) * Z[i])
         df_underlying = pd.DataFrame(price_tab)
