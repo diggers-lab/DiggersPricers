@@ -10,10 +10,13 @@ class VanillaProducts(StructuredProducts):
     def __init__(self, s: pd.DataFrame, df_options: pd.DataFrame, vanilla_style: str, k: float):
 
         """
+                VanillaProducts are considered as a subclass of StructuredProducts. The abstract method Payoff() is
+                overrided to get the payoff dataframe of the option style considered: call or put
+
                 This class describes the key parameters of Vanilla products as well as their payoff
                 @param s: stock price evolution described in a DataFrame
                 @param df_options : Dataframe describing the payoff along each trajectory
-                @param k: Strike price of your option.
+                @param vanilla_style: call ("c") or put ("p"), str
         """
 
         StructuredProducts.__init__(self, s)

@@ -5,6 +5,15 @@ from OpenFinPriGen.ModelGenerator import ModelGenerator
 
 
 class BlackScholesGen(ModelGenerator):
+    """
+        Subclass of ModelGenerator, that generates the stock as a Geometric Browninan Motion (log-normal distribution)
+        as it is specified by Black-Scholes assumptions.
+        @param r: risk-free rate, float
+        @param q: dividend yield, float
+        @param s0: stock value at time t=0, float
+        @param sigma: value of the volatility considered, float
+        @param dt: discretiration step, float
+    """
 
     def __init__(self, N: int, T: int, r: float, q: float, s0: float, sigma: float, dt: float):
         ModelGenerator.__init__(self, N, T)

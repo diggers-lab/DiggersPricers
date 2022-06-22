@@ -16,13 +16,25 @@ class MonteCarloPricing(Pricer, ABC):
                  barrier: float, rate_model: str, vanilla_style: str, underlying_style: str,
                  mean_style: str = "arithmetic", rf: float = 0, q: float = 0):
         """
-                        This abstract class aims to provide different techniques to price financial instruments
-                        @param payoff_product: the payoff must be a DataFrame
-                        @param : the evolution of interest rates must be described as a Dataframe
-                        @param s0: Stock price at time zero
+                        Subclass of Pricer, with Price() method override. The goal is to price any instruments thanks to
+                        Monte-Carlo methods.
+
+                        @param payoff_product: payoff type (options, fixed-income...), str
+                        @param s0: underlying price at time t=0, float
                         @param k: strike considered for the underlying, float
+                        @param sigma: voaltility considered for pricing, float
+                        @param maturity: time until maturity, int
+                        @param trajectories: number of trajectories simulated, int
+                        @param exotic_style: exotic-style specified ("none","a","do","di","uo","ui"), str
                         @param dt: time consideration must be specified: float (monthly, daily, yearly)
                         @param option_style: "european" or "american"
+                        @param barrier: barrier considered for barrier options, float
+                        @param rate_model: rate model specified, str
+                        @param vanilla_style: call ("c") or put ("p"), str
+                        @param underlying_style: underlying considered ("gbm"), str
+                        @param mean_style: type of mean considered for asian options ("arithmetic" or "geometric"), str
+                        @param rf: risk-free interest rate
+                        @param q: dividend yield
         """
         Pricer.__init__(self, payoff_product, rate_model, k, dt, option_style)
         self.s0 = s0
@@ -41,7 +53,7 @@ class MonteCarloPricing(Pricer, ABC):
 
     def Price(self):
         if self.payoff_product == "options":
-            if self.underlying_style == "bsm" and self.rate_model == "bsm":
+            if self.underlying_style == "gbm" and self.rate_model == "bsm" and self.option_style == 'american':
                 tab_r = self.rf * np.ones(shape=(self.trajectories, self.maturity))
                 r = pd.DataFrame(tab_r)
 
@@ -51,8 +63,9 @@ class MonteCarloPricing(Pricer, ABC):
                                              self.rf,
                                              self.q)
             df_payoff, s = my_exotic_option.PayoffExotic()
-            # print(df_payoff)
-            # print(s)
+        if self.underlying_style == "gbm" and self.rate_model == "bsm" and self.option_style == 'european':
+            MC_price = np.exp(-self.rf * self.maturity) * np.mean(df_payoff[self.maturity - 1])
+            return MC_price
 
         tab_valuation = np.zeros(shape=(len(df_payoff), len(df_payoff.iloc[0])))
         df_eu_valuation = pd.DataFrame(tab_valuation)
@@ -61,8 +74,7 @@ class MonteCarloPricing(Pricer, ABC):
             for i in range(len(df_eu_valuation)):
                 df_eu_valuation.iat[i, j] = np.exp(-self.dt * r.iat[i, j]) * (df_payoff.iat[i, j + 1]
                                                                               + df_eu_valuation.iat[i, j + 1])
-        if self.option_style == "european":
-            # print(df_eu_valuation)
+        if self.option_style == "european" and self.rate_model != "bsm":
             MC_price = np.mean(df_eu_valuation[0])
         elif self.option_style == "american":
             for j in range(len(df_us_valuation.iloc[0]) - 1, -1, -1):

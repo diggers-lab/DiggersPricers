@@ -8,7 +8,12 @@ from scipy.stats import stats
 class StructuredProducts:
 
     def __init__(self, s: pd.DataFrame):
-        """ @param s: underlying described in a DataFrame"""
+        """
+            Abstract class that will evolve.
+            Containing one subclass for now: VanillaOptions but will then consider FixedIncome Products and Performances
+            metrics
+            @param s: underlying described in a DataFrame
+        """
         self.s = s
 
     @abstractmethod

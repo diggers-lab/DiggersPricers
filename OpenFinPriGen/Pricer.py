@@ -9,11 +9,12 @@ class Pricer:
     def __init__(self, payoff_product: str, r: str, k: float, dt: float,
                  option_style: str = "european"):
         """
-                        This abstract class aims to provide different techniques to price financial instruments
-                        @param payoff_product: the payoff must be a DataFrame
-                        @param r: specifying the rate model as str
+                        This abstract class aims to provide different techniques to price financial instruments such as:
+                        Monte-Carlo Methods, Binomial tree, Analytical expressions
+                        @param payoff_product: payoff type instrument: "options", "fixed_income", ...
+                        @param r: specifying the rate model, str
                         @param k: strike considered for the underlying, float
-                        @param dt: time consideration must be specified: float (monthly, daily, yearly)
+                        @param dt: time discretization must be specified: float (monthly, daily, yearly)
                         @param option_style: "european" or "american"
         """
         self.payoff_product = payoff_product
