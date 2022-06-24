@@ -1,9 +1,5 @@
 from abc import abstractmethod
 
-import numpy as np
-import pandas as pd
-from scipy.stats import stats
-
 
 class Pricer:
     def __init__(self, payoff_product: str, r: str, k: float, dt: float,

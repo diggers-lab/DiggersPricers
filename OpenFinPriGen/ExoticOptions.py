@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from scipy.stats import stats
 
 from OpenFinPriGen.VanillaProducts import VanillaProducts
 from OpenFinPriGen.BlackScholesGen import BlackScholesGen

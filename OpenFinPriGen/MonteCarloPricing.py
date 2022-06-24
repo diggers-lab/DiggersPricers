@@ -2,11 +2,9 @@ from abc import ABC
 
 import numpy as np
 import pandas as pd
-from scipy.stats import stats
 
 from OpenFinPriGen.Pricer import Pricer
 from OpenFinPriGen.ExoticOptions import ExoticOptions
-from OpenFinPriGen.BlackScholesGen import BlackScholesGen
 
 
 class MonteCarloPricing(Pricer, ABC):
@@ -53,6 +51,7 @@ class MonteCarloPricing(Pricer, ABC):
 
     def Price(self):
         if self.payoff_product == "options":
+
             if self.underlying_style == "gbm" and self.rate_model == "bsm" and self.option_style == 'american':
                 tab_r = self.rf * np.ones(shape=(self.trajectories, self.maturity))
                 r = pd.DataFrame(tab_r)
@@ -63,6 +62,7 @@ class MonteCarloPricing(Pricer, ABC):
                                              self.rf,
                                              self.q)
             df_payoff, s = my_exotic_option.PayoffExotic()
+
         if self.underlying_style == "gbm" and self.rate_model == "bsm" and self.option_style == 'european':
             MC_price = np.exp(-self.rf * self.maturity) * np.mean(df_payoff[self.maturity - 1])
             return MC_price
@@ -74,7 +74,7 @@ class MonteCarloPricing(Pricer, ABC):
             for i in range(len(df_eu_valuation)):
                 df_eu_valuation.iat[i, j] = np.exp(-self.dt * r.iat[i, j]) * (df_payoff.iat[i, j + 1]
                                                                               + df_eu_valuation.iat[i, j + 1])
-        if self.option_style == "european" and self.rate_model != "bsm":
+        if self.option_style == "european":
             MC_price = np.mean(df_eu_valuation[0])
         elif self.option_style == "american":
             for j in range(len(df_us_valuation.iloc[0]) - 1, -1, -1):
