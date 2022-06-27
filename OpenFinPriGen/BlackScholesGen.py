@@ -25,13 +25,13 @@ class BlackScholesGen(ModelGenerator):
 
     def PathGenerate(self):
         price_tab = np.zeros(shape=(self.N, self.T))
+        price_tab[:, 0] = self.s0
+        Z = np.random.normal(0, 1, size=(self.N, self.T))
+
         for i in range(self.N):
-            price_tab[i][0] = self.s0
-        for t in range(1, self.T):
-            Z = np.random.normal(size=self.N)
-            for i in range(self.N):
-                price_tab[i][t] = price_tab[i][t - 1] * np.exp(
-                    (self.r - self.q - 0.5 * self.sigma ** 2) * self.dt + self.sigma * np.sqrt(self.dt) * Z[i])
+            for t in range(1, self.T):
+                price_tab[i, t] = price_tab[i, t - 1] * np.exp(
+                    (self.r - self.q - 0.5 * self.sigma ** 2) * self.dt + self.sigma * np.sqrt(self.dt) * Z[i, t])
         df_underlying = pd.DataFrame(price_tab)
 
         return df_underlying

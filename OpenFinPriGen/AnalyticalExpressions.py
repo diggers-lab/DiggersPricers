@@ -26,5 +26,12 @@ class AnalyticalExpressions(Pricer, ABC):
         self.rf = rf
         self.q = q
 
+    def getReturns(self, data):
+        ret = data[1:] / data[:-1] - 1
+        return ret
 
+    def HistoricalVol(self, data):
+        ret = self.getReturns(data)
+        hist_vol = np.std(ret)*np.sqrt(250)
+        return hist_vol
 
