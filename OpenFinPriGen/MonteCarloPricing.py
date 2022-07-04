@@ -9,8 +9,8 @@ from OpenFinPriGen.ExoticOptions import ExoticOptions
 
 class MonteCarloPricing(Pricer, ABC):
 
-    def __init__(self, payoff_product: str, s0: float, k: float, sigma: float, maturity: int,
-                 trajectories: int, exotic_style: str, dt: float, option_style: "str",
+    def __init__(self, payoff_product: str, s0: float, k: float, sigma: float, T: int,
+                 N: int, exotic_style: str, dt: float, option_style: "str",
                  barrier: float, rate_model: str, vanilla_style: str, underlying_style: str,
                  mean_style: str = "arithmetic", rf: float = 0, q: float = 0):
         """
@@ -21,8 +21,8 @@ class MonteCarloPricing(Pricer, ABC):
                         @param s0: underlying price at time t=0, float
                         @param k: strike considered for the underlying, float
                         @param sigma: voaltility considered for pricing, float
-                        @param maturity: time until maturity, int
-                        @param trajectories: number of trajectories simulated, int
+                        @param T: time until maturity, int
+                        @param N: number of trajectories simulated, int
                         @param exotic_style: exotic-style specified ("none","a","do","di","uo","ui"), str
                         @param dt: time consideration must be specified: float (monthly, daily, yearly)
                         @param option_style: "european" or "american"
@@ -38,8 +38,8 @@ class MonteCarloPricing(Pricer, ABC):
         self.s0 = s0
         self.k = k
         self.sigma = sigma
-        self.maturity = maturity
-        self.trajectories = trajectories
+        self.T = T
+        self.N = N
         self.exotic_style = exotic_style
         self.barrier = barrier
         self.rate_model = rate_model
@@ -53,32 +53,32 @@ class MonteCarloPricing(Pricer, ABC):
         if self.payoff_product == "options":
 
             if self.underlying_style == "gbm" and self.rate_model == "bsm" and self.option_style == 'american':
-                tab_r = self.rf * np.ones(shape=(self.trajectories, self.maturity))
-                r = pd.DataFrame(tab_r)
+                r = self.rf * np.ones(shape=(self.N, self.T))
+                r = pd.DataFrame(r)
 
-            my_exotic_option = ExoticOptions(self.s0, self.k, self.sigma, self.maturity, self.trajectories,
+            my_exotic_option = ExoticOptions(self.s0, self.k, self.sigma, self.T, self.N,
                                              self.exotic_style, self.dt,
                                              self.barrier, self.vanilla_style, self.underlying_style, self.mean_style,
                                              self.rf,
                                              self.q)
-            df_payoff, s = my_exotic_option.PayoffExotic()
+            payoff, s = my_exotic_option.PayoffExotic()
 
         if self.underlying_style == "gbm" and self.rate_model == "bsm" and self.option_style == 'european':
-            MC_price = np.exp(-self.rf * self.maturity) * np.mean(df_payoff[self.maturity - 1])
+            MC_price = np.exp(-self.rf * self.T) * np.mean(payoff[self.T - 1])
             return MC_price
 
-        tab_valuation = np.zeros(shape=(len(df_payoff), len(df_payoff.iloc[0])))
-        df_eu_valuation = pd.DataFrame(tab_valuation)
-        df_us_valuation = pd.DataFrame(tab_valuation)
-        for j in range(len(df_eu_valuation.iloc[0]) - 2, -1, -1):
-            for i in range(len(df_eu_valuation)):
-                df_eu_valuation.iat[i, j] = np.exp(-self.dt * r.iat[i, j]) * (df_payoff.iat[i, j + 1]
-                                                                              + df_eu_valuation.iat[i, j + 1])
+        valuation = np.zeros(shape=(len(payoff), len(payoff.iloc[0])))
+        eu_valuation = pd.DataFrame(valuation)
+        us_valuation = pd.DataFrame(valuation)
+        for j in range(len(eu_valuation.iloc[0]) - 2, -1, -1):
+            for i in range(len(eu_valuation)):
+                eu_valuation.iat[i, j] = np.exp(-self.dt * r.iat[i, j]) * (payoff.iat[i, j + 1]
+                                                                           + eu_valuation.iat[i, j + 1])
         if self.option_style == "european":
-            MC_price = np.mean(df_eu_valuation[0])
+            MC_price = np.mean(eu_valuation[0])
         elif self.option_style == "american":
-            for j in range(len(df_us_valuation.iloc[0]) - 1, -1, -1):
-                for i in range(len(df_us_valuation)):
-                    df_us_valuation.iat[i, j] = max(s.iat[i, j] - self.k, df_eu_valuation.iat[i, j])
-            MC_price = np.mean(df_us_valuation[0])
+            for j in range(len(us_valuation.iloc[0]) - 1, -1, -1):
+                for i in range(len(us_valuation)):
+                    us_valuation.iat[i, j] = max(s.iat[i, j] - self.k, eu_valuation.iat[i, j])
+            MC_price = np.mean(us_valuation[0])
         return MC_price

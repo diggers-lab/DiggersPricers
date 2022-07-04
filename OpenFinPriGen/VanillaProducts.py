@@ -5,7 +5,7 @@ from OpenFinPriGen.StructuredProducts import StructuredProducts
 
 class VanillaProducts(StructuredProducts):
 
-    def __init__(self, s: pd.DataFrame, df_options: pd.DataFrame, vanilla_style: str, k: float):
+    def __init__(self, s: pd.DataFrame, options: pd.DataFrame, vanilla_style: str, k: float):
 
         """
                 VanillaProducts are considered as a subclass of StructuredProducts. The abstract method Payoff() is
@@ -13,12 +13,12 @@ class VanillaProducts(StructuredProducts):
 
                 This class describes the key parameters of Vanilla products as well as their payoff
                 @param s: stock price evolution described in a DataFrame
-                @param df_options : Dataframe describing the payoff along each trajectory
+                @param options : Dataframe describing the payoff along each trajectory
                 @param vanilla_style: call ("c") or put ("p"), str
         """
 
         StructuredProducts.__init__(self, s)
-        self.df_options = df_options
+        self.options = options
         self.vanilla_style = vanilla_style
         self.k = k
 
@@ -28,13 +28,13 @@ class VanillaProducts(StructuredProducts):
 
         if self.vanilla_style == "c":
             for i in range(N):
-                self.df_options.iat[i, T - 1] = max(self.df_options.iat[i, T - 1] - self.k, 0)
+                self.options.iat[i, T - 1] = max(self.options.iat[i, T - 1] - self.k, 0)
 
         elif self.vanilla_style == "p":
             for i in range(N):
-                self.df_options.iat[i, T - 1] = max(self.k - self.df_options.iat[i, T - 1], 0)
+                self.options.iat[i, T - 1] = max(self.k - self.options.iat[i, T - 1], 0)
 
         else:
             raise Exception("Combination (position, style) not existing. Check your input.")
 
-        return self.df_options, self.s
+        return self.options, self.s
