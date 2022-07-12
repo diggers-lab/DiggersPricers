@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
 
-from OpenFinPriGen.ModelGenerator import ModelGenerator
+from OpenFinPriGen.StockGen import StockGen
 
 
-class BlackScholesGen(ModelGenerator):
+class BlackScholesGen(StockGen):
     """
         Subclass of ModelGenerator, that generates the stock as a Geometric Browninan Motion (log-normal distribution)
         as it is specified by Black-Scholes assumptions.
@@ -16,7 +16,7 @@ class BlackScholesGen(ModelGenerator):
     """
 
     def __init__(self, N: int, T: int, r: float, q: float, s0: float, sigma: float, dt: float):
-        ModelGenerator.__init__(self, N, T)
+        StockGen.__init__(self, N, T)
         self.r = r
         self.q = q
         self.s0 = s0

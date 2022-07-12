@@ -6,7 +6,7 @@ import pandas as pd
 from OpenFinPriGen.ModelGenerator import ModelGenerator
 
 
-class InterestRateGen(ModelGenerator, ABC):
+class StockGen(ModelGenerator, ABC):
     """
         Subclass of ModelGenerator, that generates stocks as a dataframe from a model specified
     """
