@@ -35,3 +35,5 @@ class BlackScholesGen(ModelGenerator):
         underlying = pd.DataFrame(price)
 
         return underlying
+
+
