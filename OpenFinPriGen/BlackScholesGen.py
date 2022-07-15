@@ -6,7 +6,7 @@ from OpenFinPriGen.StockGen import StockGen
 
 class BlackScholesGen(StockGen):
     """
-        Subclass of ModelGenerator, that generates the stock as a Geometric Browninan Motion (log-normal distribution)
+        Subclass of StockGen, that generates the stock as a Geometric Browninan Motion (log-normal distribution)
         as it is specified by Black-Scholes assumptions.
         @param r: risk-free rate, float
         @param q: dividend yield, float

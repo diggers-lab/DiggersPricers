@@ -5,14 +5,16 @@ import pandas as pd
 
 from OpenFinPriGen.Pricer import Pricer
 from OpenFinPriGen.ExoticOptions import ExoticOptions
+from OpenFinPriGen.HestonGen import HestonGen
 
 
 class MonteCarloPricing(Pricer, ABC):
 
     def __init__(self, payoff_product: str, s0: float, k: float, sigma: float, T: int,
                  N: int, exotic_style: str, dt: float, option_style: "str",
-                 barrier: float, rate_model: str, vanilla_style: str, underlying_style: str,
-                 mean_style: str = "arithmetic", rf: float = 0, q: float = 0):
+                 barrier: float, rate_model: str, vanilla_style: str, underlying_style: str, kappa: float = 0,
+                 theta: float = 0, volvol: float = 0, rho: float = 0, mean_style: str = "arithmetic", rf: float = 0,
+                 q: float = 0):
         """
                         Subclass of Pricer, with Price() method override. The goal is to price any instruments thanks to
                         Monte-Carlo methods.
@@ -30,6 +32,10 @@ class MonteCarloPricing(Pricer, ABC):
                         @param rate_model: rate model specified, str
                         @param vanilla_style: call ("c") or put ("p"), str
                         @param underlying_style: underlying considered ("gbm"), str
+                        @param kappa: Heston parameter, mean-reversion speed for the variance of the underlying asset
+                        @param theta: Heston parameter, log-term variance of the underlying asset
+                        @param volvol: Heston parameter, volatility of the volatility
+                        @param rho: Heston parameter, correlation between Brownian motions
                         @param mean_style: type of mean considered for asian options ("arithmetic" or "geometric"), str
                         @param rf: risk-free interest rate
                         @param q: dividend yield
@@ -45,24 +51,27 @@ class MonteCarloPricing(Pricer, ABC):
         self.rate_model = rate_model
         self.vanilla_style = vanilla_style
         self.underlying_style = underlying_style
+        self.kappa = kappa
+        self.theta = theta
+        self.volvol = volvol
+        self.rho = rho
         self.mean_style = mean_style
         self.rf = rf
         self.q = q
 
     def Price(self):
+        if self.rate_model == "bsm":
+            r = self.rf * np.ones(shape=(self.N, self.T))
+            r = pd.DataFrame(r)
+
         if self.payoff_product == "options":
-
-            if self.underlying_style == "gbm" and self.rate_model == "bsm" and self.option_style == 'american':
-                r = self.rf * np.ones(shape=(self.N, self.T))
-                r = pd.DataFrame(r)
-
             my_exotic_option = ExoticOptions(self.s0, self.k, self.sigma, self.T, self.N,
                                              self.exotic_style, self.dt,
-                                             self.barrier, self.vanilla_style, self.underlying_style, self.mean_style,
-                                             self.rf,
-                                             self.q)
+                                             self.barrier, self.vanilla_style, self.underlying_style, self.kappa,
+                                             self.theta, self.volvol, self.rho,  self.mean_style, self.rf, self.q)
             payoff, s = my_exotic_option.PayoffExotic()
 
+        # Black-Scholes-Merton model has closed-form expressions for European-style
         if self.underlying_style == "gbm" and self.rate_model == "bsm" and self.option_style == 'european':
             MC_price = np.exp(-self.rf * self.T) * np.mean(payoff[self.T - 1])
             return MC_price

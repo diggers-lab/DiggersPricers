@@ -3,14 +3,15 @@ import pandas as pd
 
 from OpenFinPriGen.VanillaProducts import VanillaProducts
 from OpenFinPriGen.BlackScholesGen import BlackScholesGen
+from OpenFinPriGen.HestonGen import HestonGen
 
 
 class ExoticOptions(VanillaProducts):
 
     def __init__(self, s0: float, k: float, sigma: float, T: int,
                  N: int, exotic_style: str, dt: float,
-                 barrier: float, vanilla_style: str, underlying_style: str, mean_style: str = "arithmetic",
-                 rf: float = 0, q: float = 0):
+                 barrier: float, vanilla_style: str, underlying_style: str, kappa: float = 0, theta: float = 0,
+                 volvol: float = 0, rho: float = 0, mean_style: str = "arithmetic", rf: float = 0, q: float = 0):
         """
             Method PayoffExotic() that calls Payoff() from VanillaProducts. Exotic Options are considered as a subclass
             of VanillaProducts
@@ -27,6 +28,10 @@ class ExoticOptions(VanillaProducts):
             @param barrier: value of the barrier for barrier options, float
             @param vanilla_style: call ("c") or put ("p"), str
             @param underlying_style: underlying considered ("gbm", geomoetric brownian motion
+            @param kappa: Heston parameter, mean-reversion speed for the variance of the underlying asset
+            @param theta: Heston parameter, log-term variance of the underlying asset
+            @param volvol: Heston parameter, volatility of the volatility
+            @param rho: Heston parameter, correlation between Brownian motions
             @param mean_style: type of mean considered for asian options ("arithmetic" or "geometric"), str
             @param rf: Risk free rate to apply for the calculations, default=0, float
             @param q: Dividend yield (if existing), default=0, float
@@ -42,6 +47,10 @@ class ExoticOptions(VanillaProducts):
         self.barrier = barrier
         self.vanilla_style = vanilla_style
         self.underlying_style = underlying_style
+        self.kappa = kappa
+        self.theta = theta
+        self.volvol = volvol
+        self.rho = rho
         self.mean_style = mean_style
         self.rf = rf
         self.q = q
@@ -55,10 +64,18 @@ class ExoticOptions(VanillaProducts):
             underlying = my_bsm.PathGenerate()
             self.s = underlying
 
+        if self.underlying_style == "heston":
+            my_heston = HestonGen(self.N, self.T, self.rf, self.q, self.s0, self.sigma, self.dt, self.kappa, self.theta,
+                                  self.volvol, self.rho)
+            underlying, volatility = my_heston.PathGenerate()
+            self.s = underlying
+
         if self.exotic_style == "none":
             for i in range(self.N):
                 exotic.iat[i, self.T - 1] = self.s.iat[i, self.T - 1]
             self.options = exotic
+            print("ICI !!!!")
+            print(self.options)
             return self.Payoff()
 
         elif self.exotic_style == "a" and self.mean_style == "arithmetic":
