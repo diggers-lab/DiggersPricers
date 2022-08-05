@@ -1,4 +1,4 @@
-# DiggersPricer
+# DiggersPricers
 
 
 This library aims at developing a generic tool to price any financial products. In its first version, it will be able
