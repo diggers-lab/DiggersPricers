@@ -74,8 +74,6 @@ class ExoticOptions(VanillaProducts):
             for i in range(self.N):
                 exotic.iat[i, self.T - 1] = self.s.iat[i, self.T - 1]
             self.options = exotic
-            print("ICI !!!!")
-            print(self.options)
             return self.Payoff()
 
         elif self.exotic_style == "a" and self.mean_style == "arithmetic":

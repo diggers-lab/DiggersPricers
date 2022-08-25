@@ -22,6 +22,7 @@ class InterestRateGen(ModelGenerator, ABC):
         rates[:, 0] = r0
         for i in range(self.N):
             for j in range(1, self.T):
-                rates[i, j] = rates[i, j - 1] + k * (theta - rates[i, j - 1]) * dt + sigma * Z[i, j]
+                rates[i, j] = np.maximum(rates[i, j - 1] + k * (theta - rates[i, j - 1]) * dt + sigma * Z[i, j], -0.03)
         rates = pd.DataFrame(rates)
         return rates
+
