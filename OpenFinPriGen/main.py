@@ -31,6 +31,7 @@ aapl_price = 1.18
 
 
 def main():
+
     # Testing Heston Dynamics
     # my_heston_gen = HestonGen(N, T, rf, q, s0, sigma, dt, kappa, theta, volvol, rho)
     # my_heston_price = my_heston_gen.PathGenerate()
@@ -90,15 +91,15 @@ def main():
     # print(implied_vol_bsm)
 
     # Test of Vasicek generation
-    # my_interest_rate = InterestRateGen(N, T)
-    # interest_rate_df = my_interest_rate.vasicek(0.01, 0.3, 0.9, 0.2)
-    # print(interest_rate_df)
-    # plt.plot(interest_rate_df.iloc[0])
-    # plt.plot(interest_rate_df.iloc[1])
-    # plt.plot(interest_rate_df.iloc[-1])
-    # plt.ylabel("Rates")
-    # plt.title("Examples of Vasicek paths")
-    # plt.show()
+    my_interest_rate = InterestRateGen(N, T)
+    interest_rate_df = my_interest_rate.vasicek(0.01, 0.3, 0.9, 0.2)
+    print(interest_rate_df)
+    plt.plot(interest_rate_df.iloc[0])
+    plt.plot(interest_rate_df.iloc[1])
+    plt.plot(interest_rate_df.iloc[-1])
+    plt.ylabel("Rates")
+    plt.title("Examples of Vasicek paths")
+    plt.show()
 
 
 if __name__ == '__main__':
